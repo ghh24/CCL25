@@ -467,4 +467,3 @@ function moveStars() {
     point(starX + rotation, starY + rotation);
   }
 }
-
