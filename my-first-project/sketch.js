@@ -12,14 +12,55 @@
 
 //feedback: make the transition between forms smoother, like add lerp between forms, or have the shapes gradually "grow" or just transition into the next form like the small squares to the big circle with butterflies, maybe improve the the object following the mouse, build environment
 
-let x, y, size1, size2;
-let n = 10; // Number of points for the bubble
-let xr, yr, R;
-let gridSize = 10;
+
 
 function setup() {
-  let canvas = createCanvas(1000, 600);
-  canvas.parent('p5-canvas')
+  //createCanvas(1000, 600);
+    let canvas = createCanvas(800, 500);
+    canvas.id("p5-canvas");
+    canvas.parent("p5-canvas-container");
+  x = width / 2;
+  y = height / 2;
+  R = 50;
+}
+
+f//title concept: the butterfly paradox: from growth to confinement
+//design: starts off as circles (represents "purity", "no form", "neverending freedom", shifts to squares (represents freedom with some restriction and conformation to order and structure, but still with some "purity," "originality" and lack of overbearing imposition from others, at last transofrms to butterflies in which confiend in a "bubble" or by societal norms, with the squares bouncing on the outside of the bubbles representing a curated/unrestrained self that they once had but now are "blocked" from as now fully developed and mature individuals within society ))
+
+///ACTUALLY, REDEFINE AS REACTING TO BEHAVIOR, NOT AS METAPHORICAL GROWTH (i.e. more like how does the creature react to being clicked, to eating food, does it run away, how does it react when you aren't reacting to it, what happens if the mouse goes off canvas) AND A "CREATURE" that doesn't already exist yet
+
+//NEXT IDEA:
+//title: the nervous form
+//description: when not pressed, the creature is in its normal state, a fluid, relaxed, circle, when pressed, the creature gets a little more stressed turning into a square, its new "points" representing its defensiveness, when pressed again (this time with mouse and keyboard), the creature enlarges and you can actually see the "butterflies" or whatever abstract name you would like to call it, revealing its ultimate nervous form. being "pressed" is also synonymous with the human world, where when we are pressed it can sometimes literally mean we are on a time cruch or something has caused us to be stressed or nervous as well
+
+//sources:
+//"bubble": https://docs.google.com/document/d/1hB8f-GcjHJFU9k0wLhUu16rmbUsChPZmHcAdy88AY_c/edit?tab=t.0
+
+//feedback: make the transition between forms smoother, like add lerp between forms, or have the shapes gradually "grow" or just transition into the next form like the small squares to the big circle with butterflies, maybe improve the the object following the mouse, build environment
+
+let x, y, size1, size2;
+let n = 10; // num points for the bubble
+let xr, yr, R;
+let gridSize = 10;
+let counter = 0
+
+let smallSize = 2; 
+let bigSize = 100;
+let lerpAmount = 0; 
+
+let fogOffset = 0; 
+let starSpeed = 0.2; 
+let pulseAmount = 0;
+let noiseOffset = 0; 
+let fogNoiseOffset = 0; 
+
+let r = 0
+
+function setup() {
+  createCanvas(800, 500);
+  // let canvas = createCanvas(800, 500);
+  //   canvas.id("p5-canvas");
+  //   canvas.parent("p5-canvas-container");
   x = width / 2;
   y = height / 2;
   R = 50;
@@ -27,6 +68,12 @@ function setup() {
 
 function draw() {
   background(0);
+  pulseAmount = sin(frameCount * 0.05) * 20; // Creates a smooth pulsing effect
+  noiseOffset += 0.01; // Increment for noise movement
+
+  outerspace();
+  fog();
+  moveStars();
 
   R = 50;
   let xn = (noise(frameCount * 0.01) * 2 - 1) * 50;
@@ -50,6 +97,8 @@ function draw() {
   size2 = map(sin(frameCount * 0.05 + PI / 2), -1, 1, 5, 15);
 
   if (!mouseIsPressed) {
+    counter = 0
+    lerpAmount = 0
     // circles when mouse isn't pressed
     fill(100);
     noStroke();
@@ -84,9 +133,19 @@ function draw() {
 
     drawSpaghettiArmRight(x + 70, y + 40);
   } else if (mouseIsPressed && !keyIsPressed) {
+    counter+=1
+    if(counter <=25){
+      lerpAmount += 0.002; // speed
+  lerpAmount = constrain(lerpAmount, 0, 1); // keep between 0 and 1
+
+  // transitions from size from smallSize to bigSize
+  size1 = lerp(smallSize, bigSize, lerpAmount);
+  size2= lerp(smallSize, bigSize, lerpAmount);
+    }
     // squares mouse pressed
-    fill(255);
-    noStroke();
+      let c = lerpColor(color(100), color(255), lerpAmount);
+    fill(c);
+    noStroke()
     rect(x, y, size1, size1);
     rect(
       x + noise(frameCount * 0.08) * 50,
@@ -130,11 +189,34 @@ function draw() {
     );
   } else if (mouseIsPressed && keyIsPressed) {
     // buble with butterflies and squares
+    counter = 0;
     R = 100;
     // the "bubble"
     stroke(255);
     noFill();
-    bubble();
+    counter+=1
+    if (counter <= 100) {
+  lerpAmount += 0.009;
+  lerpAmount = constrain(lerpAmount, 0, 1);
+
+  let baseR = lerp(smallSize, bigSize, lerpAmount);
+
+  // Gentle pulsing effect
+  let wobble = 2 * sin(frameCount * 0.1); // Tiny amplitude, slow frequency
+
+  r = baseR + wobble;
+
+  bubble(r);
+  console.log(counter, r);
+}
+
+
+
+    else{
+      r = 100 + 10 * sin(frameCount * 0.1 + offset) + j * 20;
+      bubble(r);
+    }
+    
 
     // butterfliews follow mouse
     fill(255, 150, 0);
@@ -182,13 +264,15 @@ function draw() {
   }
 }
 
-function bubble() {
+function bubble(r) {
+  
+  
   beginShape();
   for (let j = 0; j < 3; j++) {
     for (let i = 0; i < n; i++) {
       let angle = map(i, 0, n, 0, 2 * PI);
       let offset = map(i, 0, n, 0, 5 * PI);
-      let r = 100 + 10 * sin(frameCount * 0.1 + offset) + j * 20;
+      //let r = 100 + 10 * sin(frameCount * 0.1 + offset) + j * 20;
       let xBubble = x + r * cos(angle);
       let yBubble = y + r * sin(angle);
       curveVertex(xBubble, yBubble);
@@ -246,6 +330,8 @@ function drawSpinningEllipse(x, y, size, spd) {
 function drawSpaghettiArmLeft(xvalue, yvalue) {
   let armLength = 40;
   let numStrings = 5;
+  let centerX = 400;  
+  let centerY = 250; 
 
   for (let i = 0; i < numStrings; i++) {
     let angle = -PI / 4 + (i * (PI / 4)) / (numStrings - 1);
@@ -256,8 +342,14 @@ function drawSpaghettiArmLeft(xvalue, yvalue) {
     for (let j = 0; j < armLength; j++) {
       let movement = frameCount * 0.04 + j * 0.1;
 
-      let movex = x - cos(angle) * 5;
-      let movey = y + sin(movement) * 4;
+      let distanceToCenter = dist(x, y, centerX, centerY);
+
+      let lengthFactor = map(distanceToCenter, 0, width, 0.1, 2);  
+
+      let verticalAmplitudeFactor = map(distanceToCenter, 0, width, 0.2, 1);  
+
+      let movex = x - cos(angle) * 5 * lengthFactor;  // Scale the length of the movement
+      let movey = y + sin(movement) * 4 * verticalAmplitudeFactor;  // Scale the amplitude of the sine wave
 
       line(x, y, movex, movey);
 
@@ -270,8 +362,9 @@ function drawSpaghettiArmLeft(xvalue, yvalue) {
 function drawSpaghettiArmRight(xvalue, yvalue) {
   let armLength = 40;
   let numStrings = 5;
+  let centerX = 400;  
+  let centerY = 250;  
 
-  // Loop through each string
   for (let i = 0; i < numStrings; i++) {
     let angle = -PI / 4 + (i * (PI / 4)) / (numStrings - 1);
 
@@ -281,13 +374,96 @@ function drawSpaghettiArmRight(xvalue, yvalue) {
     for (let j = 0; j < armLength; j++) {
       let movement = frameCount * 0.05 + j * 0.1;
 
-      let movex = x + cos(angle) * 5;
-      let movey = y + sin(movement) * 4;
+    
+      let distanceToCenter = dist(x, y, centerX, centerY);
+
+      let lengthFactor = map(distanceToCenter, 0, width, 0.1, 2);  
+
+      let verticalAmplitudeFactor = map(distanceToCenter, 0, width, 0.2, 1);  
+
+      let movex = x + cos(angle) * 5 * lengthFactor; 
+      let movey = y + sin(movement) * 4 * verticalAmplitudeFactor;  
 
       line(x, y, movex, movey);
 
       x = movex;
       y = movey;
     }
+  }
+}
+
+
+let angleOffset = 0; 
+
+function outerspace() {
+  background(0);
+  let centerX = width / 2;
+  let centerY = height / 2;
+  let numStars = 800; 
+  let maxRadius = min(width, height) * 0.5; 
+
+  for (let i = 0; i < numStars; i++) {
+    let angle = i * 0.2 + angleOffset; 
+    let radius = i * 0.7; 
+
+    if (radius > maxRadius) break;
+
+    let x = centerX + cos(angle) * radius;
+    let y = centerY + sin(angle) * radius;
+
+    let d = dist(x, y, mouseX, mouseY);
+    let darkness = map(d, 0, width / 2, 255, 50);
+    darkness += pulseAmount;
+
+    stroke(darkness, darkness * 0.8, darkness * 1.2);
+    strokeWeight(2);
+    point(x, y);
+  }
+
+  angleOffset += 0.02; 
+}
+
+
+
+
+function fog() {
+  fogOffset += 0.2; // speed of fog movement
+  fogNoiseOffset += 0.005; 
+  noFill();
+  stroke(255, 255, 255, 50); 
+
+  push(); // save current drawing state
+  translate(width / 2, height / 2); 
+  rotate(radians(frameCount * 0.1)); 
+
+  let offsetX = noise(fogNoiseOffset) * 100 + (mouseX - width / 2) * 0.05; 
+  let offsetY = noise(fogNoiseOffset + 1000) * 100 + (mouseY - height / 2) * 0.05; 
+
+  for (let i = 0; i < 3; i++) {
+    ellipse(offsetX, offsetY, 800 + fogOffset + pulseAmount + i * 150, 500 + fogOffset + pulseAmount + i * 100);
+  }
+  pop(); 
+}
+
+function moveStars() {
+
+  for (let i = 0; i < 150; i++) {
+    let starX = random(width);
+    let starY = random(height);
+    let starBrightness = random(150, 255); 
+
+    
+    let starSpeedX = (mouseX - starX) * 0.002 + noise(noiseOffset + i * 0.01) * 0.5;
+    let starSpeedY = (mouseY - starY) * 0.002 + noise(noiseOffset + i * 0.01 + 500) * 0.5;
+
+    starX += starSpeedX;
+    starY += starSpeedY;
+
+    starBrightness += pulseAmount;
+
+    let rotation = sin(noise(i * 0.05 + frameCount * 0.01) * TWO_PI) * 2;
+
+    stroke(starBrightness);
+    point(starX + rotation, starY + rotation);
   }
 }
