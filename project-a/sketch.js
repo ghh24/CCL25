@@ -24,7 +24,7 @@ function setup() {
   R = 50;
 }
 
-f//title concept: the butterfly paradox: from growth to confinement
+//title concept: the butterfly paradox: from growth to confinement
 //design: starts off as circles (represents "purity", "no form", "neverending freedom", shifts to squares (represents freedom with some restriction and conformation to order and structure, but still with some "purity," "originality" and lack of overbearing imposition from others, at last transofrms to butterflies in which confiend in a "bubble" or by societal norms, with the squares bouncing on the outside of the bubbles representing a curated/unrestrained self that they once had but now are "blocked" from as now fully developed and mature individuals within society ))
 
 ///ACTUALLY, REDEFINE AS REACTING TO BEHAVIOR, NOT AS METAPHORICAL GROWTH (i.e. more like how does the creature react to being clicked, to eating food, does it run away, how does it react when you aren't reacting to it, what happens if the mouse goes off canvas) AND A "CREATURE" that doesn't already exist yet
